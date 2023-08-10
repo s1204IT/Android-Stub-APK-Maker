@@ -59,8 +59,8 @@ jobs:
           echo "version=$(grep versionCode app/build.gradle | awk '{print $2}')" >> $GITHUB_ENV
           # Set appli name
           if [ "${{ inputs.app_name }}" != "" ]; then
-            sed -ie 's/\ \/>//g' app/build.gradle
-            sed -ie "/application/a \ \ \ \ \ \ \ \ android:name=\"${{ inputs.app_name }}\"\ \/>"
+            sed -ie 's/\ \/>//g' app/src/main/AndroidManifest.xml
+            sed -ie "/application/a \ \ \ \ \ \ \ \ android:name=\"${{ inputs.app_name }}\"\ \/>" app/src/main/AndroidManifest.xml
           fi
           # Build
           ./gradlew assembleRelease
