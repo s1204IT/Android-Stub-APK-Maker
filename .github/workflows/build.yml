@@ -60,7 +60,7 @@ jobs:
           # Set appli name
           if [ "${{ inputs.app_name }}" != "" ]; then
             sed -ie 's/\ \/>//g' app/src/main/AndroidManifest.xml
-            sed -ie "/application/a \ \ \ \ \ \ \ \ android:name=\"${{ inputs.app_name }}\"\ \/>" app/src/main/AndroidManifest.xml
+            sed -ie "/application/a \ \ \ \ \ \ \ \ android:label=\"${{ inputs.app_name }}\"\ \/>" app/src/main/AndroidManifest.xml
           fi
           # Build
           ./gradlew assembleRelease
