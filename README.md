@@ -7,7 +7,7 @@ To build from Actions, you must first clone this repository.
 
 ### What "APK type"
 
-Stub: versionCode: `1`
+Stub: versionCode: `1`  
 Install block (default): versionCode: `2147483647`
 
 Specify a maximum value for the version code to ensure that the application is prevented from being overwritten.
