@@ -8,21 +8,22 @@ on:
       - 'gradle/**'
       - '*.gradle'
   workflow_dispatch:
-    package:
-        type: string
-        description: "Package ID"
-        required: true
-        default: ""
-    app_name:
-        type: string
-        description: "Appli name"
-        required: false
-        default: ""
-    stub:
-        type: boolean
-        description: "Stub mode (versionCode: 1)"
-        required: true
-        default: true
+    inputs:
+      package:
+          type: string
+          description: "Package ID"
+          required: true
+          default: ""
+      app_name:
+          type: string
+          description: "Appli name"
+          required: false
+          default: ""
+      stub:
+          type: boolean
+          description: "Stub mode (versionCode: 1)"
+          required: true
+          default: true
 
 jobs:
   build:
