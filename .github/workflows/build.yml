@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build.yml'
+      - 'app/**'
+      - 'gradle/**'
+      - '*.gradle'
+  workflow_dispatch:
+    package:
+        type: string
+        description: "Package ID"
+        required: true
+        default: ""
+    app_name:
+        type: string
+        description: "Appli name"
+        required: false
+        default: ""
+    stub:
+        type: boolean
+        description: "Stub mode (versionCode: 1)"
+        required: true
+        default: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches/
+            ~/.gradle/wrapper/
+          key: ${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Build with Gradle
+        run: |
+          # Set package ID
+          sed -ie "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
+          # Stub or Install block
+          if [ "${{ inputs.stub }}" == "true" ]; then
+            sed -ie 's/2147483647/1/g' app/build.gradle
+          fi
+          echo "version=$(grep versionCode app/build.gradle | awk '{print $2}')" >> $GITHUB_ENV
+          # Set appli name
+          if [ "${{ inputs.app_name }}" != "" ]; then
+            sed -ie 's/\ \/>//g' app/build.gradle
+            sed -ie "/application/a \ \ \ \ \ \ \ \ android:name=\"${{ inputs.app_name }}\"\ \/>"
+          fi
+          # Build
+          ./gradlew assembleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.package }}_${{ env.version }}
+          path: app/build/outputs/apk/release/app-release.apk

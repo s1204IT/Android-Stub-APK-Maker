@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdk 22
+    buildToolsVersion '30.0.3'
+
+    defaultConfig {
+        applicationId 'com.android.vending'
+        minSdk 8
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk 22
+        //noinspection HighAppVersionCode
+        versionCode 2147483647
+    }
+
+    signingConfigs {
+        android {
+            storeFile file('android.jks')
+            storePassword 'android'
+            keyAlias 'android'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable false
+            signingConfig signingConfigs.android
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            signingConfig signingConfigs.android
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
