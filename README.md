@@ -7,8 +7,8 @@ To build from Actions, you must first clone this repository.
 
 ### What "APK type"
 
-Stub: versionCode: `1`  
-Install block (default): versionCode: `2147483647`
+Stub (default): versionCode: `1`  
+Install block: versionCode: `2147483647`
 
 Specify a maximum value for the version code to ensure that the application is prevented from being overwritten.
 
@@ -17,7 +17,7 @@ Specify a maximum value for the version code to ensure that the application is p
 This can be used to reserve a package ID with the same signature in advance when the application is scheduled to be offered in the future.
 
 1. Specify the package ID as the same as the planning application (ex: `com.example.22game`)
-2. Enter the name of the appli (Option)
+2. Enter the name of the appli (option)
 3. Check "**Stub**" type (default)
 4. Build
 5. Place the built APK in the system partition (ex: `/system/app/22Game/22Game.apk`)
