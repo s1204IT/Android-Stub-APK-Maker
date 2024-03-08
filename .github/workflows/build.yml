@@ -16,7 +16,7 @@ on:
           default: ""
       app_name:
           type: string
-          description: "Appli name"
+          description: "App name"
           required: false
           default: ""
       stub:
@@ -24,6 +24,11 @@ on:
           description: "Stub mode (versionCode: 1)"
           required: true
           default: true
+      sign:
+          type: boolean
+          description: Custom signing
+          required: true
+          default: false
 
 jobs:
   build:
@@ -32,16 +37,16 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '17'
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches/
@@ -51,22 +56,35 @@ jobs:
       - name: Build with Gradle
         run: |
           # Set package ID
-          sed -ie "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
+          if [ "${{ inputs.package }}" != "" ]; then
+            sed -i -e "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
+          fi
           # Stub or Install block
           if [ "${{ inputs.stub }}" == "true" ]; then
-            sed -ie 's/2147483647/1/g' app/build.gradle
+            sed -i -e 's/2147483647/1/g' app/build.gradle
           fi
           echo "version=$(grep versionCode app/build.gradle | awk '{print $2}')" >> $GITHUB_ENV
-          # Set appli name
+          # Set app name
           if [ "${{ inputs.app_name }}" != "" ]; then
-            sed -ie 's/\ \/>//g' app/src/main/AndroidManifest.xml
-            sed -ie "/application/a \ \ \ \ \ \ \ \ android:label=\"${{ inputs.app_name }}\"\ \/>" app/src/main/AndroidManifest.xml
+            sed -i -e 's/\ \/>//g' app/src/main/AndroidManifest.xml
+            sed -i -e "/application/a \        android:label=\"${{ inputs.app_name }}\" \/>" app/src/main/AndroidManifest.xml
+          fi
+          # Set signature
+          if [ "${{ inputs.sign }}" == "true" ]; then
+            if ! echo "${{ secrets.STORE_FILE }}" | base64 -d > app/release.jks; then
+              echo -e "ERROR!\nPlease set the variables correctly.\n"
+              echo "Please see the README for details."
+              exit 1
+            fi
+            export STORE_PASSWORD="${{ secrets.STORE_PASSWORD }}"
+            export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
+            export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
           fi
           # Build
           ./gradlew assembleRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.package }}_${{ env.version }}
           path: app/build/outputs/apk/release/app-release.apk
