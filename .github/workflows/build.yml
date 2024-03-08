@@ -56,7 +56,9 @@ jobs:
       - name: Build with Gradle
         run: |
           # Set package ID
-          sed -i -e "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
+          if [ "${{ inputs.package }}" != "" ]; then
+            sed -i -e "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
+          fi
           # Stub or Install block
           if [ "${{ inputs.stub }}" == "true" ]; then
             sed -i -e 's/2147483647/1/g' app/build.gradle
