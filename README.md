@@ -34,3 +34,18 @@ This can be used for custom ROMs where you absolutely want to prevent GMS from b
 4. Place the built APK in the system partition (`/system/app/GmsCore/GmsCore.apk`)
 
 This is not limited to GMS only; you can also specify other packages you do not want installed.
+
+### Use custom signing
+
+Please set Repository secrets.
+
+The variables are:
+
+- **STORE_FILE**  
+  A string that is a base64 encoded JKS format keystore
+- **STORE_PASSWORD**  
+  Keystore password
+- **KEY_ALIAS**  
+  Cert alias
+- **KEY_PASSWORD**  
+  Cert password

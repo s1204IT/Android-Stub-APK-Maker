@@ -3,16 +3,15 @@ plugins {
 }
 
 android {
-    compileSdk 33
-    buildToolsVersion '30.0.3'
+    namespace 'com.android.vending'
+    compileSdk 34
 
     defaultConfig {
-        applicationId 'com.android.vending'
-        minSdk 8
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk 22
+        minSdk 1
+        targetSdk 34
         //noinspection HighAppVersionCode
         versionCode 2147483647
+        proguardFiles += 'proguard-rules.pro'
     }
 
     signingConfigs {
@@ -22,26 +21,35 @@ android {
             keyAlias 'android'
             keyPassword 'android'
         }
+        release {
+            storeFile file('release.jks')
+            storePassword System.getenv('STORE_PASSWORD')
+            keyAlias System.getenv('KEY_ALIAS')
+            keyPassword System.getenv('KEY_PASSWORD')
+        }
     }
 
     buildTypes {
         debug {
             debuggable false
-            signingConfig signingConfigs.android
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.android
         }
         release {
-            signingConfig signingConfigs.android
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.android
+            if (file('release.jks').exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
+    packagingOptions.jniLibs.useLegacyPackaging false
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }

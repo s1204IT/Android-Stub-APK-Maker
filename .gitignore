@@ -5,4 +5,4 @@
 # IntelliJ
 /.idea/
 # Gradle Build
-/app/build/
+build/
