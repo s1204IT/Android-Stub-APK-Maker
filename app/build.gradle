@@ -3,15 +3,14 @@ plugins {
 }
 
 android {
-    namespace 'com.android.vending'
-    compileSdk 34
-    buildToolsVersion '34.0.0'
+    namespace = 'com.android.vending'
+    compileSdk = 35
 
     defaultConfig {
-        minSdk 1
-        targetSdk 34
+        minSdk = 1
+        targetSdk = 35
         //noinspection HighAppVersionCode
-        versionCode 2147483647
+        versionCode = 2147483647
         proguardFiles += 'proguard-rules.pro'
     }
 
@@ -31,26 +30,22 @@ android {
     }
 
     buildTypes {
-        debug {
-            debuggable false
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.android
-        }
-        release {
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.android
+        configureEach {
+            debuggable = false
+            minifyEnabled = true
+            shrinkResources = true
+            signingConfig = signingConfigs.android
             if (file('release.jks').exists()) {
-                signingConfig signingConfigs.release
+                signingConfig = signingConfigs.release
             }
         }
     }
 
-    packagingOptions.jniLibs.useLegacyPackaging false
+    packagingOptions.jniLibs.useLegacyPackaging = false
+    lintOptions.checkReleaseBuilds = false
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 }

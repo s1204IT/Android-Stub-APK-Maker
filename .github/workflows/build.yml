@@ -33,7 +33,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
 
       - name: Checkout
@@ -43,27 +43,25 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: 21
 
-      - name: Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches/
-            ~/.gradle/wrapper/
-          key: ${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Build with Gradle
+      - name: Setup environments
         run: |
           # Set package ID
           if [ "${{ inputs.package }}" != "" ]; then
             sed -i -e "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
+            echo "package=$(echo ${{ inputs.package }})" >> $GITHUB_ENV
+          else
+            echo "package=com.android.vending" >> $GITHUB_ENV
           fi
           # Stub or Install block
           if [ "${{ inputs.stub }}" == "true" ]; then
             sed -i -e 's/2147483647/1/g' app/build.gradle
           fi
-          echo "version=$(grep versionCode app/build.gradle | awk '{print $2}')" >> $GITHUB_ENV
+          echo "version=$(grep versionCode app/build.gradle | awk '{print $3}')" >> $GITHUB_ENV
           # Set app name
           if [ "${{ inputs.app_name }}" != "" ]; then
             sed -i -e 's/\ \/>//g' app/src/main/AndroidManifest.xml
@@ -80,11 +78,16 @@ jobs:
             export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
             export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
           fi
-          # Build
-          ./gradlew assembleRelease
 
-      - name: Upload APK
+      - name: Build
+        run: |
+          # Build
+          ./gradlew --stacktrace --warning-mode=all --no-daemon assembleRelease
+          # Rename item
+          cp -f "app/build/outputs/apk/release/app-release.apk" "${{ env.package }}-${{ env.version }}.apk"
+
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.package }}_${{ env.version }}
-          path: app/build/outputs/apk/release/app-release.apk
+          name: "${{ env.package }}-${{ env.version }}"
+          path: "${{ env.package }}-${{ env.version }}.apk"
