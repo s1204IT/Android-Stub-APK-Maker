@@ -67,6 +67,9 @@ jobs:
             sed -i -e 's/\ \/>//g' app/src/main/AndroidManifest.xml
             sed -i -e "/application/a \        android:label=\"${{ inputs.app_name }}\" \/>" app/src/main/AndroidManifest.xml
           fi
+
+      - name: Build
+        run: |
           # Set signature
           if [ "${{ inputs.sign }}" == "true" ]; then
             if ! echo "${{ secrets.STORE_FILE }}" | base64 -d > app/release.jks; then
@@ -78,9 +81,6 @@ jobs:
             export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
             export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
           fi
-
-      - name: Build
-        run: |
           # Build
           ./gradlew --stacktrace --warning-mode=all --no-daemon assembleRelease
           # Rename item
