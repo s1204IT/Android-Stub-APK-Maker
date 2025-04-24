@@ -2,28 +2,24 @@ name: Build
 
 on:
   push:
-    paths:
-      - '.github/workflows/build.yml'
-      - 'app/**'
-      - 'gradle/**'
-      - '*.gradle'
   workflow_dispatch:
     inputs:
       package:
           type: string
           description: "Package ID"
           required: true
-          default: ""
+          default: "com.android.example"
+      min_sdk:
+          type: choice
+          options: [ 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 ]
+          description: "Min sdk"
+          required: true
+          default: "24"
       app_name:
           type: string
           description: "App name"
           required: false
           default: ""
-      stub:
-          type: boolean
-          description: "Stub mode (versionCode: 1)"
-          required: true
-          default: true
       sign:
           type: boolean
           description: Custom signing
@@ -45,49 +41,32 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Setup environments
+      - name: Apply custom names
         run: |
           # Set package ID
           if [ "${{ inputs.package }}" != "" ]; then
-            sed -i -e "s/com.android.vending/${{ inputs.package }}/g" app/build.gradle
-            echo "package=$(echo ${{ inputs.package }})" >> $GITHUB_ENV
-          else
-            echo "package=com.android.vending" >> $GITHUB_ENV
+            sed -i -e 's/package=\"com.android.example/package=\"${{ inputs.package }}/' AndroidManifest.xml
           fi
-          # Stub or Install block
-          if [ "${{ inputs.stub }}" == "true" ]; then
-            sed -i -e 's/2147483647/1/g' app/build.gradle
-          fi
-          echo "version=$(grep versionCode app/build.gradle | awk '{print $3}')" >> $GITHUB_ENV
           # Set app name
           if [ "${{ inputs.app_name }}" != "" ]; then
-            sed -i -e 's/\ \/>//g' app/src/main/AndroidManifest.xml
-            sed -i -e "/application/a \        android:label=\"${{ inputs.app_name }}\" \/>" app/src/main/AndroidManifest.xml
+            sed -i -e 's/label=\"/label=\"${{ inputs.app_name }}/' AndroidManifest.xml
+          else
+            sed -i -e 's/label=\"/label=\"${{ inputs.package }}/' AndroidManifest.xml
           fi
 
-      - name: Build
+      - name: Setup custom signature
+        if: ${{ inputs.sign }}
         run: |
-          # Set signature
-          if [ "${{ inputs.sign }}" == "true" ]; then
-            if ! echo "${{ secrets.STORE_FILE }}" | base64 -d > app/release.jks; then
-              echo -e "ERROR!\nPlease set the variables correctly.\n"
-              echo "Please see the README for details."
-              exit 1
-            fi
-            export STORE_PASSWORD="${{ secrets.STORE_PASSWORD }}"
-            export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
-            export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
-          fi
-          # Build
-          ./gradlew --stacktrace --warning-mode=all --no-daemon assembleRelease
-          # Rename item
-          cp -f "app/build/outputs/apk/release/app-release.apk" "${{ env.package }}-${{ env.version }}.apk"
+          echo "${{ secrets.CERT }}" > data/cert.pem
+          echo "${{ secrets.KEY }}" | base64 -d > data/cert.pk8
+
+      - name: Make
+        run: |
+          export PATH=$PATH:$ANDROID_HOME/build-tools/35.0.1
+          ./build.sh "${{ inputs.min_sdk }}"
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ env.package }}-${{ env.version }}"
-          path: "${{ env.package }}-${{ env.version }}.apk"
+          name: "stub"
+          path: "stub.apk"
