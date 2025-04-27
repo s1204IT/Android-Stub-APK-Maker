@@ -14,7 +14,7 @@ on:
           options: [ 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 ]
           description: "Min sdk"
           required: true
-          default: "24"
+          default: "21"
       app_name:
           type: string
           description: "App name"
@@ -51,7 +51,7 @@ jobs:
           if [ "${{ inputs.app_name }}" != "" ]; then
             sed -i -e 's/label=\"/label=\"${{ inputs.app_name }}/' AndroidManifest.xml
           else
-            sed -i -e 's/label=\"/label=\"${{ inputs.package }}/' AndroidManifest.xml
+            sed -i -e '/label=/d' AndroidManifest.xml
           fi
 
       - name: Setup custom signature

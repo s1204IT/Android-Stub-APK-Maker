@@ -3,6 +3,5 @@
     package="com.android.example">
     <application 
         android:label=""
-        android:hasCode="false"
-        android:persistent="true" />
+        android:hasCode="false" />
 </manifest>
