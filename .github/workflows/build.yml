@@ -9,12 +9,18 @@ on:
           description: "Package ID"
           required: true
           default: "com.android.example"
+      min_sdk:
+          type: choice
+          options: [ 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8 ]
+          description: "Min sdk"
+          required: true
+          default: "24"
       target_sdk:
           type: choice
           options: [ 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8 ]
           description: "Target sdk"
           required: true
-          default: "35"
+          default: "37"
       app_name:
           type: string
           description: "App name"
@@ -64,7 +70,7 @@ jobs:
       - name: Make
         run: |
           export PATH=$PATH:$ANDROID_HOME/build-tools/37.0.0
-          ./build.sh "${{ inputs.target_sdk }}"
+          ./build.sh "${{ inputs.min_sdk }}" "${{ inputs.target_sdk }}"
 
       - name: Upload
         uses: actions/upload-artifact@v7
