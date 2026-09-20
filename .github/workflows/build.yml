@@ -11,7 +11,7 @@ on:
           default: "com.android.example"
       min_sdk:
           type: choice
-          options: [ 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 ]
+          options: [ 37, 36.1, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 ]
           description: "Min sdk"
           required: true
           default: "21"
@@ -33,19 +33,19 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
-          java-version: 21
+          java-version: 25
 
-      - name: Apply custom names
+      - name: Apply customization
         run: |
           # Set package ID
           if [ "${{ inputs.package }}" != "" ]; then
-            sed -i -e 's/package=\"com.android.example/package=\"${{ inputs.package }}/' AndroidManifest.xml
+            sed -i -e 's/com.android.example/${{ inputs.package }}/' AndroidManifest.xml
           fi
           # Set app name
           if [ "${{ inputs.app_name }}" != "" ]; then
@@ -54,7 +54,7 @@ jobs:
             sed -i -e '/label=/d' AndroidManifest.xml
           fi
 
-      - name: Setup custom signature
+      - name: Apply custom certificates
         if: ${{ inputs.sign }}
         run: |
           echo "${{ secrets.CERT }}" > data/cert.pem
@@ -62,11 +62,11 @@ jobs:
 
       - name: Make
         run: |
-          export PATH=$PATH:$ANDROID_HOME/build-tools/35.0.1
+          export PATH=$PATH:$ANDROID_HOME/build-tools/37.0.0
           ./build.sh "${{ inputs.min_sdk }}"
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: "stub"
           path: "stub.apk"
+          archive: false
