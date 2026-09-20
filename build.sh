@@ -6,11 +6,11 @@ export JAVA_TOOL_OPTIONS="--enable-native-access=ALL-UNNAMED"
 # Clean
 rm -f stub-unaligned.apk stub.apk stub.apk.idsig
 
-# Value of minSdk (Default: 26)
-MIN_SDK="${1:-26}"
+# Value of minSdk (Default: 24)
+MIN_SDK="${1:-24}"
 
-# Value of targetSdk (Default: 35)
-TARGET_SDK="${1:-35}"
+# Value of targetSdk (Default: 37)
+TARGET_SDK="${2:-37}"
 
 # Make APK
 aapt package -M AndroidManifest.xml -I $ANDROID_SDK_ROOT/platforms/android-37.2/android.jar -F stub-unaligned.apk --min-sdk-version $MIN_SDK --target-sdk-version $TARGET_SDK
